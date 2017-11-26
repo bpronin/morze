@@ -2,12 +2,8 @@ package com.bopr.morze;
 
 
 import android.app.Notification;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,30 +15,29 @@ import android.util.Log;
 
 import java.util.List;
 
-import static android.support.v4.media.session.MediaSessionCompat.*;
+import static android.support.v4.media.session.MediaSessionCompat.Callback;
+import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS;
 
 /**
- * Created by bo on 26.11.2017.
+ * Class MainService
  */
-public class MediaControlService extends MediaBrowserServiceCompat {
+public class MainService extends MediaBrowserServiceCompat {
 
-    private static final String LOG_TAG = "MediaControlService";
-    private static final String MY_MEDIA_ROOT_ID = "media_root_id";
-    private static final String MY_EMPTY_MEDIA_ROOT_ID = "empty_root_id";
+    private static final String LOG_TAG = "MainService";
 
     private MediaSessionCompat mediaSession;
 
     @Override
     public void onCreate() {
         super.onCreate();
-//        makeForeground();
+        bringForeground();
 
-//        mediaSession = new MediaSessionCompat(this, LOG_TAG);
-//        mediaSession.setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
-//        mediaSession.setCallback(new MediaControlSessionCallback());
+        mediaSession = new MediaSessionCompat(this, LOG_TAG);
+        mediaSession.setFlags(FLAG_HANDLES_MEDIA_BUTTONS);
+        mediaSession.setCallback(new MediaControlSessionCallback());
 //        setSessionToken(mediaSession.getSessionToken());
 
-        Log.d(LOG_TAG, "Media session created");
+        Log.d(LOG_TAG, "Service created");
     }
 
     @Override
@@ -51,29 +46,28 @@ public class MediaControlService extends MediaBrowserServiceCompat {
         Log.d(LOG_TAG, "Service destroyed");
     }
 
-    private void makeForeground() {
-        Notification notification = new NotificationCompat.Builder(this, null)
-                    .setContentTitle("Title")
-                    .setTicker("Ticker")
-                    .setContentText("Content text")
-                    .setSmallIcon(R.drawable.ic_launcher_foreground)
-                    .build();
-        startForeground(101, notification);
-    }
-
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
-        return null;  //todo: Implement method.
+        return null;
     }
 
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        //todo: Implement method.
+    }
+
+    private void bringForeground() {
+        Notification notification = new NotificationCompat.Builder(this, "com.bopr.morze")
+                .setContentTitle("Title")
+                .setTicker("Ticker")
+                .setContentText("Content text")
+                .setSmallIcon(R.drawable.ic_settings_ethernet)
+                .build();
+        startForeground(101, notification);
     }
 
     public static void start(Context context) {
-        context.startService(new Intent(context, MediaControlService.class));
+        context.startService(new Intent(context, MainService.class));
 //
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 //            Bitmap icon = Bitmap.createScaledBitmap(
@@ -96,6 +90,10 @@ public class MediaControlService extends MediaBrowserServiceCompat {
 //            context.startForeground();
 //            throw new RuntimeException("Unsupported OS version");
 //        }
+    }
+
+    public static void stop(Context context) {
+        context.stopService(new Intent(context, MainService.class));
     }
 
     private class MediaControlSessionCallback extends Callback {

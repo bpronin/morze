@@ -19,11 +19,18 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".MediaControlService"/>
+        <service android:name=".MainService"/>
 
         <receiver android:name=".BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <!-- Required for backward compatibility -->
+        <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </receiver>
 

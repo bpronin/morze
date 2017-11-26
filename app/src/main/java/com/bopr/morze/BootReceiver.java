@@ -16,6 +16,6 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(LOG_TAG, "Boot intent received");
-        MediaControlService.start(context);
+        MainService.start(context);
     }
 }
